@@ -21,8 +21,6 @@ final class DefaultStarter implements Starter
 
 	public function getInstance():?Router
 	{
-		echo "\nok\n";die;
-
 		return $this->router;
 	}
 }

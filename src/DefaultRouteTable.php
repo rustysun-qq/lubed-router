@@ -29,5 +29,4 @@ class DefaultRouteTable implements RouteTable
     {
         return $this->routes[$key]??NULL;
     }
-
 }

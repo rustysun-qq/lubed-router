@@ -14,7 +14,7 @@ final class DefaultRoute implements Route
 	{
 		$this->method = $method;
 		$this->uri = sprintf('/%s',trim($uri,'/'));
-		$this->key = sprintf('%s /%s',$method,$this->uri);
+		$this->key = sprintf('%s %s',$method,$this->uri);
 		$this->options=$options;
 	}
 
@@ -46,5 +46,10 @@ final class DefaultRoute implements Route
 	public function getNext()
 	{
 		return $this->options['next']??NULL;
+	}
+
+	public function getParameters()
+	{
+		return $this->options['parameters']??[];
 	}
 }

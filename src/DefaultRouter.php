@@ -5,7 +5,7 @@ namespace Lubed\Router;
 use Lubed\Utils\Arr;
 
 use Closure;
-use Lubed\Router\Routing\{DefaultRoutingDestination,DefaultRoutingParser,DefaultRoutingRule};
+use Lubed\Router\Routing\{DefaultRoutingDestination, DefaultRoutingParser, DefaultRoutingRule};
 
 class DefaultRouter implements Router
 {
@@ -80,57 +80,50 @@ class DefaultRouter implements Router
         return $this->routes;
     }
 
-    private function createRoute(string $method,string $uri,$options)
+    public function routing(string $key)
     {
-
-        $route_options = $this->createRouteOptions($method,$uri,$options);
-        return new DefaultRoute($method,$uri,$route_options);
-
+        return $this->table->getByKey($key);
     }
 
-    private function createRouteOptions(string $method,string $uri, $options):array
+    private function createRoute(string $method,string $uri,$options)
     {
-        $route_options=[
-            'protocol'=>self::PROTOCOL_DEFAULT,
-            'destination'=>NULL,
-            'next'=>NULL
+        $route_options = $this->createRouteOptions($method,$uri,$options);
+        return new DefaultRoute($method,$uri,$route_options);
+    }
+
+    private function createRouteOptions(string $method, string $uri, $options):array
+    {
+        $route_options = [
+            'protocol' => self::PROTOCOL_DEFAULT,
+            'destination' => NULL,
+            'next' => NULL
         ];
 
-
         if (is_array($options)) {
-            $route_options=array_merge($route_options,$options);
+            $route_options=array_merge($route_options, $options);
         }
 
-        $destination = null;
+        $destination = $route_options['destination'];
 
-        if(is_string($options)) {
+        if (is_string($options)) {
             $data = explode('@',$options);
             $class = $data[0]??'';
             $action = $data[1]??'Index';
 
-            if($class && class_exists($class)&&$action){
-                $callee=[$class,$action];
+            if ($class && class_exists($class) && $action) {
+                $callee = [$class,$action];
                 $destination = new DefaultRoutingDestination($callee); 
             }
-
-      
- 
-        }
-        if(!$destination){
-            $rule = NULL;
-
-            if (self::PROTOCOL_DEFAULT === $route_options['protocol']) {
-                $rule = new DefaultRoutingRule();
-                $parser = new DefaultRoutingParser($method,$rule,$this->table);
-                $destination= $parser->parse($uri);
-            }
         }
 
+        if (!$destination) {
+            RouterExceptions::routingFailed(sprintf('Invalid destination(%s %s)!',$methid,$uri),[
+                'class'=>__CLASS__,'method'=>__METHOD__
+            ]);
+        }
 
-        $route_options['destination'] =  $destination;
+        $route_options['destination'] = $destination;
 
         return $route_options;
     }
-
-
 }

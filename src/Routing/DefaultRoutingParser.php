@@ -23,45 +23,16 @@ class DefaultRoutingParser implements RoutingParser
 		$rule = $this->rule;
 		$result = [];
 
-		if (preg_match($rule->getRule(), $parse_uri, $result)>0) {
-			$group = '';
-			$controller = '';
-			$action = '';
-			$route_options = [];
-			$p = 1;
-			$paths = array_filter($result);
-			$num = count($paths);
-			$action = array_pop($paths);
+		$callee = $this->table->getByKey($key);
 
-			if ($num > 3) {
-				$group = $paths[1];
-			}
-
-			if ($num < 2) {
-				$action = 'Index';//default action
-				$key = sprintf('%s/%s',$key,$action);
-			}
-
-			$controller = $this->table->getByKey($key);
-
-			if (!$controller) {
-				RouterExceptions::routingFailed(sprintf('Invalid Destination of Request(%s)',$key),[
-					'class'=>__CLASS__,
-					'method'=>__METHOD__
-				]);
-			}
-
-			$callee = [$controller, $action];
-			$options = [];
-
-			if ($group) {
-				$options['group'] = $group;
-			}
-
-			return DefaultRoutingDestination($callee, $parameters, $options);
+		if (!$callee) {
+			RouterExceptions::routingFailed(sprintf('Invalid Destination of Request(%s)',$key),[
+				'class'=>__CLASS__,
+				'method'=>__METHOD__
+			]);
 		}
 
-		return NULL;
+		return DefaultRoutingDestination($callee, $parameters);
 	}
 
 	private function getParameters(string &$uri):array
