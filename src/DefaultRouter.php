@@ -5,25 +5,39 @@ namespace Lubed\Router;
 use Lubed\Utils\Arr;
 
 use Closure;
-use Lubed\Router\Routing\{DefaultRoutingDestination, DefaultRoutingParser, DefaultRoutingRule};
+use Lubed\Router\Routing\{DefaultRoutingDestination};
 
 class DefaultRouter implements Router
 {
     const PROTOCOL_DEFAULT = 1;
 
     private $table;
+    private $rdi_resolver;
 
     public function __construct()
     {
-        $this->table = new DefaultRouteTable();
+        $this->table = null;
+        $this->rdi_resolver = new RDIResolver();
     }
 
-    public function addRoute(string $method, string $uri, $options)
+    public function withRouteTable(?RouteTable $table=NULL):self
     {
-        $route = $this->createRoute($method,$uri,$options);
+        $this->table = $table;
+
+        if(null===$table){
+            $this->table =new DefaultRouteTable();            
+        }
+
+        return $this;
+    }
+
+    public function addRoute(string $method, string $rdi, $options)
+    {
+        $this->checkTable(__METHOD__);
+        $route = $this->createRoute($method,$rdi,$options);
         $key = $route->getKey();
-        $callee = $route->getDestination()->getCallee();
-        $this->table->add($key,$callee);
+        $rdi = $route->getDestination()->getRDI();
+        $this->table->add($key,$rdi);
     }
 
     public function head($uri, $options)
@@ -82,7 +96,17 @@ class DefaultRouter implements Router
 
     public function routing(string $key)
     {
+        $this->checkTable(__METHOD__);
         return $this->table->getByKey($key);
+    }
+
+    private function checkTable(string $method){
+        if(null === $this->table){
+            RouterExceptions::routeTableFailed(
+                'Route table does not initialized!',[
+                'method'=>$method
+            ]);
+        }
     }
 
     private function createRoute(string $method,string $uri,$options)
@@ -106,19 +130,15 @@ class DefaultRouter implements Router
         $destination = $route_options['destination'];
 
         if (is_string($options)) {
-            $data = explode('@',$options);
-            $class = $data[0]??'';
-            $action = $data[1]??'Index';
-
-            if ($class && class_exists($class) && $action) {
-                $callee = [$class,$action];
-                $destination = new DefaultRoutingDestination($callee); 
-            }
+            $rdi = $this->rdi_resolver->resolve($options);
+            $destination = new DefaultRoutingDestination($rdi);
         }
 
         if (!$destination) {
-            RouterExceptions::routingFailed(sprintf('Invalid destination(%s %s)!',$methid,$uri),[
-                'class'=>__CLASS__,'method'=>__METHOD__
+            RouterExceptions::routingFailed(
+                sprintf('Invalid destination(%s %s)!',$methid,$uri
+            ),[
+                'method'=>__METHOD__
             ]);
         }
 

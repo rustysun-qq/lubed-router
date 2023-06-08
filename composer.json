@@ -8,7 +8,8 @@
         "ext-json": "*",
         "lubed/utils": "dev-main",
         "lubed/supports": "dev-main",
-        "lubed/exceptions": "dev-main"
+        "lubed/exceptions": "dev-main",
+        "lubed/container":"dev-main"
     },
     "config": {
     },
@@ -19,7 +20,7 @@
     },
     "extra": {
         "lubed":{
-            "starter":"\\Lubed\\Router\\DefaultStarter"
+            "starter":"\\Lubed\\Router\\RouterStarter"
         }
     }
 }

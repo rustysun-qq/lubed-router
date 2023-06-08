@@ -1,20 +1,22 @@
 <?php
 namespace Lubed\Router\Routing;
 
+use Lubed\Router\RDI;
+
 class DefaultRoutingDestination implements RoutingDestination
 {
-	private $callee;
+	private $rdi;
 	private $parameters;
 
-	public function __construct(array $callee, array $parameters=[])
+	public function __construct(RDI $rdi, array $parameters=[])
 	{
-		$this->callee = $callee;
+		$this->rdi = $rdi;
 		$this->parameters = $parameters;
 	}
 
-	public function getCallee():array
+	public function getRDI():RDI
 	{
-		return $this->callee;
+		return $this->rdi;
 	}
 
 	public function setParameters(array $parameters):self

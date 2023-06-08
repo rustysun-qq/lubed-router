@@ -8,7 +8,7 @@ class DefaultRouterLoader
 
 	public function __construct(string $path)
 	{
-		$this->router = new DefaultRouter();
+		$this->router = (new DefaultRouter())->withRouteTable();
 		$this->path = $path;
 	}
 

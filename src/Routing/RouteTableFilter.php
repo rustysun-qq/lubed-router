@@ -1,8 +1,6 @@
 <?php
 namespace Lubed\Router\Routing;
 
-use Lubed\Router\RouteTable;
-
 class RouteTableFilter implements RoutingFilter
 {
 	private $uri, $table;

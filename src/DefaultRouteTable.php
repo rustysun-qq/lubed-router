@@ -11,13 +11,13 @@ class DefaultRouteTable implements RouteTable
         $this->table = $routes;
     }
 
-    public function add(string $key, $callee)
+    public function add(string $key,RDI $rdi)
     {
         if(isset($this->routes[$key])) {
             RouterExceptions::routeHasExists(sprintf('The route %s is exists!',$key));
         }
         //TODO:???
-        $this->routes[$key]=$callee;
+        $this->routes[$key]=$rdi;
     }
 
     public function all():array
