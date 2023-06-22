@@ -24,7 +24,7 @@ class DefaultRouteTable implements RouteTable {
         return $this->routes;
     }
 
-    public function getByPath(string $path) : RDIResult {
+    public function getByPath(string $path) : ?RDIResult {
         $rdi=$this->routes[$path] ?? null;
         if (null !== $rdi) {
             return new RDIResult($rdi);

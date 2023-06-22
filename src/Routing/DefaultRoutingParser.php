@@ -13,9 +13,8 @@ class DefaultRoutingParser implements RoutingParser {
 
     public function parse(string $method, string $uri) : ?RoutingDestination {
         $parse_uri=$uri;
-        $path=sprintf('%s %s', $method, rtrim($parse_uri, '/'));
-        $result=[];
-        $rdi_result=$this->table->getByPath($path);
+        $key=sprintf('%s %s', $method, rtrim($parse_uri, '/'));
+        $rdi_result=$this->table->getByPath($key);
         if (!$rdi_result) {
             RouterExceptions::routingFailed(sprintf('Invalid Destination of Request(%s)', $key), [
                 'method'=>__METHOD__
