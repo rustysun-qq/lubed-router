@@ -2,31 +2,20 @@
 namespace Lubed\Router\Routing;
 
 use Lubed\Router\RDI;
+use Lubed\Router\RDIResult;
 
-class DefaultRoutingDestination implements RoutingDestination
-{
-	private $rdi;
-	private $parameters;
+class DefaultRoutingDestination implements RoutingDestination {
+    private RDIResult $rdi_result;
 
-	public function __construct(RDI $rdi, array $parameters=[])
-	{
-		$this->rdi = $rdi;
-		$this->parameters = $parameters;
-	}
+    public function __construct(RDIResult $result) {
+        $this->rdi_result=$result;
+    }
 
-	public function getRDI():RDI
-	{
-		return $this->rdi;
-	}
+    public function getRDI() : RDI {
+        return $this->rdi_result->getRdi();
+    }
 
-	public function setParameters(array $parameters):self
-	{
-		$this->parameters = $parameters;
-		return $this;
-	}
-
-	public function getParameters():array
-	{
-		return $this->parameters;
-	}
+    public function getParameters() : ?array {
+        return $this->rdi_result->getParamters();
+    }
 }

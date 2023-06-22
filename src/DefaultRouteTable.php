@@ -1,32 +1,69 @@
 <?php
-
 namespace Lubed\Router;
 
-class DefaultRouteTable implements RouteTable
-{
-    private $routes = [];
+use Lubed\Router\Protocols\RouteProtocol;
+use Lubed\Router\Protocols\RouteProtocolResolver;
 
-    public function __construct(array $routes=[])
-    {
-        $this->table = $routes;
+class DefaultRouteTable implements RouteTable {
+    private $routes=[];
+    private $resolver;
+
+    public function __construct(array $routes=[]) {
+        $this->table=$routes;
+        $this->resolver=new RouteProtocolResolver;
     }
 
-    public function add(string $key,RDI $rdi)
-    {
-        if(isset($this->routes[$key])) {
-            RouterExceptions::routeHasExists(sprintf('The route %s is exists!',$key));
+    public function add(string $key, RDI $rdi) {
+        if (isset($this->routes[$key])) {
+            RouterExceptions::routeHasExists(sprintf('The route %s is exists!', $key));
         }
-        //TODO:???
         $this->routes[$key]=$rdi;
     }
 
-    public function all():array
-    {
+    public function all() : array {
         return $this->routes;
     }
 
-    public function getByKey(string $key)
-    {
-        return $this->routes[$key]??NULL;
+    public function getByPath(string $path) : RDIResult {
+        $rdi=$this->routes[$path] ?? null;
+        if (null !== $rdi) {
+            return new RDIResult($rdi);
+        }
+        return $this->scanTable($path);
+    }
+
+    private function scanTable(string $str) {
+        $pathInfo=explode(' ', $str);
+        $path=$pathInfo[1] ?? '';
+        $keys=array_keys($this->routes);
+        var_dump($path);
+        foreach ($this->routes as $key=>$rdi) {
+            $key_info=explode(' ', $key);
+            $key_path=$key_info[1] ?? '';
+            $resolved=$this->resolver->resolve($key_path);
+            $protocol=$resolved->getProtocol();
+            if (RouteProtocol::NORMAL === $protocol) {
+                continue;
+            }
+            if (RouteProtocol::SIMPLE === $protocol) {
+                $pattern=sprintf('#^%s$#i', $resolved->getRule());
+                preg_match($pattern, $path, $matches);
+                if (empty($matches)) {
+                    continue;
+                }
+                $parameters=array_slice($matches, 1);
+                return new RDIResult($rdi, $parameters);
+            }
+            //REGEXP
+            $pattern=sprintf('#%s#i', $resolved->getRule());
+            preg_match($pattern, $path, $matches);
+            if (empty($matches)) {
+                continue;
+            }
+            var_dump($matches);
+            die;
+            $parameters=array_slice($matches, 1);
+            return new RDIResult($rdi, $parameters);
+        }
     }
 }

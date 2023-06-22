@@ -1,7 +1,5 @@
 <?php
 namespace Lubed\Router\Routing;
-
-interface RoutingParser
-{
-	public function parse(string $uri):?RoutingDestination;
+interface RoutingParser {
+    public function parse(string $method, string $uri) : ?RoutingDestination;
 }

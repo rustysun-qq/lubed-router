@@ -1,7 +1,5 @@
 <?php
 namespace Lubed\Router;
-
-interface RouteTable
-{
-	public function getByKey(string $key);
+interface RouteTable {
+    public function getByPath(string $path);
 }
