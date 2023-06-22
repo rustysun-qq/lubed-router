@@ -35,8 +35,6 @@ class DefaultRouteTable implements RouteTable {
     private function scanTable(string $str) {
         $pathInfo=explode(' ', $str);
         $path=$pathInfo[1] ?? '';
-        $keys=array_keys($this->routes);
-        var_dump($path);
         foreach ($this->routes as $key=>$rdi) {
             $key_info=explode(' ', $key);
             $key_path=$key_info[1] ?? '';
@@ -60,8 +58,6 @@ class DefaultRouteTable implements RouteTable {
             if (empty($matches)) {
                 continue;
             }
-            var_dump($matches);
-            die;
             $parameters=array_slice($matches, 1);
             return new RDIResult($rdi, $parameters);
         }
