@@ -1,28 +1,20 @@
 <?php
 namespace Lubed\Router;
+class DefaultRouterLoader {
+    private $router;
 
-class DefaultRouterLoader
-{
-	private $router;
-	private $path;
+    public function __construct() {
+        $this->router=(new DefaultRouter)->withRouteTable();
+    }
 
-	public function __construct(string $path)
-	{
-		$this->router = (new DefaultRouter())->withRouteTable();
-		$this->path = $path;
-	}
-
-	public function load():Router
-	{
-		$loader = function(string $path, Router &$router) {
-			if (!is_file($path)) {
-				return $router;
-			}
-
-			require_once($path);
-		};
-
-		$loader($this->path, $this->router);
-		return $this->router;
-	}
+    public function load(string $path) : Router {
+        $loader=function(string $path, Router &$router) {
+            if (!is_file($path)) {
+                return $router;
+            }
+            require_once($path);
+        };
+        $loader($path, $this->router);
+        return $this->router;
+    }
 }
