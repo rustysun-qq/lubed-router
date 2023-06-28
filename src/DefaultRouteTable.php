@@ -4,6 +4,9 @@ namespace Lubed\Router;
 use Lubed\Router\Protocols\RouteProtocol;
 use Lubed\Router\Protocols\RouteProtocolResolver;
 
+/**
+ * Default route table
+ */
 class DefaultRouteTable implements RouteTable {
     private $routes=[];
     private $resolver;
@@ -32,11 +35,16 @@ class DefaultRouteTable implements RouteTable {
         return $this->scanTable($path);
     }
 
-    private function scanTable(string $str) {
+    private function scanTable(string $str):?RDIResult {
         $pathInfo=explode(' ', $str);
+        $method = $pathInfo[0]??'';
         $path=$pathInfo[1] ?? '';
         foreach ($this->routes as $key=>$rdi) {
             $key_info=explode(' ', $key);
+            $key_method = $key_info[0]??null;
+            if($method !== $key_method){
+                continue;
+            }
             $key_path=$key_info[1] ?? '';
             $resolved=$this->resolver->resolve($key_path);
             $protocol=$resolved->getProtocol();
@@ -61,5 +69,6 @@ class DefaultRouteTable implements RouteTable {
             $parameters=array_slice($matches, 1);
             return new RDIResult($rdi, $parameters);
         }
+        return NULL;
     }
 }
